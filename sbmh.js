@@ -193,18 +193,15 @@ SBMH.prototype._sbmh_lookup_char = function(data, pos) {
 }
 
 SBMH.prototype._sbmh_memcmp = function(data, pos, len) {
-	var i = 0;
+  var i = 0;
 
-	while (i < len) {
-		var data_ch = this._sbmh_lookup_char(data, pos + i),
-        needle_ch = this._needle[i];
-
-		if (data_ch === needle_ch)
-			++i;
-		else
-			return false;
-	}
-	return true;
+  while (i < len) {
+    if (this._sbmh_lookup_char(data, pos + i) === this._needle[i])
+      ++i;
+    else
+      return false;
+  }
+  return true;
 }
 
 module.exports = SBMH;
