@@ -74,7 +74,7 @@ Events
 Properties
 ----------
 
-* **maxMatches** - < _integer_ > - The maximum number of matches. This is especially useful when multiple matches exist within a single chunk passed to push(), so that this module knows to stop matching within that single chunk. Defaults to Infinity.
+* **maxMatches** - < _integer_ > - The maximum number of matches. Defaults to Infinity.
 
 * **matches** - < _integer_ > - The current match count.
 
