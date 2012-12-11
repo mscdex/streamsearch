@@ -84,6 +84,6 @@ Functions
 
 * **(constructor)**(< _Buffer_ >needle) - Creates and returns a new instance for searching for `needle`.
 
-* **push**(< _Buffer_ >chunk) - _integer_ - Process `chunk`. The return value is the last processed index in `chunk` + 1.
+* **push**(< _Buffer_ >chunk) - _integer_ - Processes `chunk`. The return value is the last processed index in `chunk` + 1.
 
 * **reset**() - _(void)_ - Resets internal state. Useful for when you wish to start searching a new/different stream for example.
