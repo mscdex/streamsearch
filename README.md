@@ -35,11 +35,11 @@ Example
         new Buffer('\n world.'),
         new Buffer('\r\n Node.JS rules!!\r\n\r\n')
       ];
-  s.on('data', function(data, start, end) {
-    console.log('data: ' + inspect(data.toString('ascii', start, end)));
-  });
-  s.on('match', function() {
-    console.log('match!');
+  s.on('info', function(isMatch, data, start, end) {
+    if (data)
+      console.log('data: ' + inspect(data.toString('ascii', start, end)));
+    if (isMatch)
+      console.log('match!');
   });
   for (var i = 0, len = chunks.length; i < len; ++i)
     s.push(chunks[i]);
@@ -66,9 +66,7 @@ API
 Events
 ------
 
-* **data**(< _Buffer_ >chunk, < _integer_ >start, < _integer_ >end) - Emitted when non-needle data is available. This data is in `chunk` between `start` (inclusive) and `end` (exclusive).
-
-* **match**() - Emitted when the needle has been found in the stream.
+* **info**(< _boolean_ >isMatch[, < _Buffer_ >chunk, < _integer_ >start, < _integer_ >end]) - A match _may_ or _may not_ have been made. In either case, a preceding `chunk` of data _may_ be available that did not match the needle. Data (if available) is in `chunk` between `start` (inclusive) and `end` (exclusive).
 
 
 Properties
@@ -82,7 +80,7 @@ Properties
 Functions
 ---------
 
-* **(constructor)**(< _Buffer_ >needle) - Creates and returns a new instance for searching for `needle`.
+* **(constructor)**(< _mixed_ >needle) - Creates and returns a new instance for searching for a _Buffer_ or _string_ `needle`.
 
 * **push**(< _Buffer_ >chunk) - _integer_ - Processes `chunk`. The return value is the last processed index in `chunk` + 1.
 

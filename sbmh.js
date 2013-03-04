@@ -13,6 +13,8 @@ function jsmemcmp(buf1, pos1, buf2, pos2, num) {
 }
 
 function SBMH(needle) {
+  if (typeof needle === 'string')
+    needle = new Buffer(needle);
   var i, j, needle_len = needle.length;
 
   this.maxMatches = Infinity;
@@ -56,7 +58,7 @@ SBMH.prototype.push = function(chunk, pos) {
 SBMH.prototype._sbmh_feed = function(data) {
   var len = data.length, needle = this._needle, needle_len = needle.length;
 
-  // Positive: points to a position in 'data'
+  // Positive: points to a position in `data`
   //           pos == 3 points to data[3]
   // Negative: points to a position in the lookbehind buffer
   //           pos == -2 points to lookbehind[lookbehind_size - 2]
@@ -84,10 +86,11 @@ SBMH.prototype._sbmh_feed = function(data) {
       if (ch === last_needle_char
           && this._sbmh_memcmp(data, pos, needle_len - 1)) {
         this._lookbehind_size = 0;
-        if (pos > -this._lookbehind_size)
-          this.emit('data', lookbehind, 0, this._lookbehind_size + pos);
         ++this.matches;
-        this.emit('match');
+        if (pos > -this._lookbehind_size)
+          this.emit('info', true, lookbehind, 0, this._lookbehind_size + pos);
+        else
+          this.emit('info', true);
 
         data.bmhpos = pos + needle_len;
         return pos + needle_len;
@@ -112,7 +115,7 @@ SBMH.prototype._sbmh_feed = function(data) {
 
     if (pos >= 0) {
       // Discard lookbehind buffer.
-      this.emit('data', lookbehind, 0, this._lookbehind_size);
+      this.emit('info', false, lookbehind, 0, this._lookbehind_size);
       this._lookbehind_size = 0;
     } else {
       // Cut off part of the lookbehind buffer that has
@@ -122,7 +125,7 @@ SBMH.prototype._sbmh_feed = function(data) {
 
       if (bytesToCutOff > 0) {
         // The cut off data is guaranteed not to contain the needle.
-        this.emit('data', lookbehind, 0, bytesToCutOff);
+        this.emit('info', false, lookbehind, 0, bytesToCutOff);
       }
 
       lookbehind.copy(lookbehind, 0, bytesToCutOff,
@@ -149,10 +152,11 @@ SBMH.prototype._sbmh_feed = function(data) {
     if (ch === last_needle_char
         && data[pos] === needle[0]
         && jsmemcmp(needle, 0, data, pos, needle_len - 1)) {
-      if (pos > 0)
-        this.emit('data', data, data.bmhpos, pos);
       ++this.matches;
-      this.emit('match');
+      if (pos > 0)
+        this.emit('info', true, data, data.bmhpos, pos);
+      else
+        this.emit('info', true);
 
       data.bmhpos = pos + needle_len;
       return pos + needle_len;
@@ -179,7 +183,7 @@ SBMH.prototype._sbmh_feed = function(data) {
 
   // Everything until pos is guaranteed not to contain needle data.
   if (pos > 0)
-    this.emit('data', data, data.bmhpos, pos < len ? pos : len);
+    this.emit('info', false, data, data.bmhpos, pos < len ? pos : len);
 
   data.bmhpos = len;
   return len;
