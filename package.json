@@ -1,5 +1,5 @@
 { "name": "streamsearch",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Brian White <mscdex@mscdex.net>",
   "description": "Streaming Boyer-Moore-Horspool searching for node.js",
   "main": "./sbmh",
