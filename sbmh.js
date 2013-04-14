@@ -23,6 +23,7 @@ function SBMH(needle) {
   this._occ = new Array(256);
   this._lookbehind_size = 0;
   this._needle = needle;
+  this._bufpos = 0;
 
   this._lookbehind = new Buffer(needle_len);
 
@@ -42,6 +43,7 @@ inherits(SBMH, EventEmitter);
 SBMH.prototype.reset = function() {
   this._lookbehind_size = 0;
   this.matches = 0;
+  this._bufpos = 0;
 };
 
 SBMH.prototype.push = function(chunk, pos) {
@@ -49,10 +51,7 @@ SBMH.prototype.push = function(chunk, pos) {
   if (!Buffer.isBuffer(chunk))
     chunk = new Buffer(chunk, 'binary');
   chlen = chunk.length;
-  if (!chunk.bmhpos)
-    chunk.bmhpos = pos || 0;
-  else if (pos !== undefined)
-    chunk.bmhpos = pos;
+  this._bufpos = pos || 0;
   while (r !== chlen && this.matches < this.maxMatches)
     r = this._sbmh_feed(chunk);
   return r;
@@ -95,7 +94,7 @@ SBMH.prototype._sbmh_feed = function(data) {
         else
           this.emit('info', true);
 
-        data.bmhpos = pos + needle_len;
+        this._bufpos = pos + needle_len;
         return pos + needle_len;
       } else
         pos += occ[ch];
@@ -138,13 +137,13 @@ SBMH.prototype._sbmh_feed = function(data) {
       data.copy(lookbehind, this._lookbehind_size);
       this._lookbehind_size += len;
 
-      data.bmhpos = len;
+      this._bufpos = len;
       return len;
     }
   }
 
   if (pos >= 0)
-    pos += data.bmhpos;
+    pos += this._bufpos;
 
   // Lookbehind buffer is now empty. Perform Boyer-Moore-Horspool
   // search with optimized character lookup code that only considers
@@ -157,11 +156,11 @@ SBMH.prototype._sbmh_feed = function(data) {
         && jsmemcmp(needle, 0, data, pos, needle_len - 1)) {
       ++this.matches;
       if (pos > 0)
-        this.emit('info', true, data, data.bmhpos, pos);
+        this.emit('info', true, data, this._bufpos, pos);
       else
         this.emit('info', true);
 
-      data.bmhpos = pos + needle_len;
+      this._bufpos = pos + needle_len;
       return pos + needle_len;
     } else
       pos += occ[ch];
@@ -186,9 +185,9 @@ SBMH.prototype._sbmh_feed = function(data) {
 
   // Everything until pos is guaranteed not to contain needle data.
   if (pos > 0)
-    this.emit('info', false, data, data.bmhpos, pos < len ? pos : len);
+    this.emit('info', false, data, this._bufpos, pos < len ? pos : len);
 
-  data.bmhpos = len;
+  this._bufpos = len;
   return len;
 };
 
