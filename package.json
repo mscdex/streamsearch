@@ -2,7 +2,7 @@
   "version": "0.1.1",
   "author": "Brian White <mscdex@mscdex.net>",
   "description": "Streaming Boyer-Moore-Horspool searching for node.js",
-  "main": "./sbmh",
+  "main": "./lib/sbmh",
   "engines": { "node" : ">=0.8.0" },
   "keywords": [ "stream", "horspool", "boyer-moore-horspool", "boyer-moore", "search" ],
   "licenses": [ { "type": "MIT", "url": "http://github.com/mscdex/streamsearch/raw/master/LICENSE" } ],
