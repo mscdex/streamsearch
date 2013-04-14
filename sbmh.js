@@ -45,7 +45,10 @@ SBMH.prototype.reset = function() {
 };
 
 SBMH.prototype.push = function(chunk, pos) {
-  var r, chlen = chunk.length;
+  var r, chlen;
+  if (!Buffer.isBuffer(chunk))
+    chunk = new Buffer(chunk, 'binary');
+  chlen = chunk.length;
   if (!chunk.bmhpos)
     chunk.bmhpos = pos || 0;
   else if (pos !== undefined)
