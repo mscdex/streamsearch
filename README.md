@@ -24,16 +24,16 @@ Example
   var StreamSearch = require('streamsearch'),
       inspect = require('util').inspect;
 
-  var needle = new Buffer([13, 10]), // CRLF
+  var needle = Buffer.from([13, 10]), // CRLF
       s = new StreamSearch(needle),
       chunks = [
-        new Buffer('foo'),
-        new Buffer(' bar'),
-        new Buffer('\r'),
-        new Buffer('\n'),
-        new Buffer('baz, hello\r'),
-        new Buffer('\n world.'),
-        new Buffer('\r\n Node.JS rules!!\r\n\r\n')
+        Buffer.from('foo'),
+        Buffer.from(' bar'),
+        Buffer.from('\r'),
+        Buffer.from('\n'),
+        Buffer.from('baz, hello\r'),
+        Buffer.from('\n world.'),
+        Buffer.from('\r\n Node.JS rules!!\r\n\r\n')
       ];
   s.on('info', function(isMatch, data, start, end) {
     if (data)
