@@ -9,7 +9,7 @@ This module is based heavily on the Streaming Boyer-Moore-Horspool C++ implement
 Requirements
 ============
 
-* [node.js](http://nodejs.org/) -- v0.8.0 or newer
+* [node.js](http://nodejs.org/) -- v10.0.0 or newer
 
 
 Installation
@@ -20,29 +20,30 @@ Installation
 Example
 =======
 
-```javascript
-  var StreamSearch = require('streamsearch'),
-      inspect = require('util').inspect;
+```js
+  const { inspect } = require('util');
 
-  var needle = new Buffer([13, 10]), // CRLF
-      s = new StreamSearch(needle),
-      chunks = [
-        new Buffer('foo'),
-        new Buffer(' bar'),
-        new Buffer('\r'),
-        new Buffer('\n'),
-        new Buffer('baz, hello\r'),
-        new Buffer('\n world.'),
-        new Buffer('\r\n Node.JS rules!!\r\n\r\n')
-      ];
-  s.on('info', function(isMatch, data, start, end) {
+  const StreamSearch = require('streamsearch');
+
+  const needle = Buffer.from('\r\n');
+  const ss = new StreamSearch(needle, (isMatch, data, start, end) => {
     if (data)
-      console.log('data: ' + inspect(data.toString('ascii', start, end)));
+      console.log('data: ' + inspect(data.toString('latin1', start, end)));
     if (isMatch)
       console.log('match!');
   });
-  for (var i = 0, len = chunks.length; i < len; ++i)
-    s.push(chunks[i]);
+
+  const chunks = [
+    'foo',
+    ' bar',
+    '\r',
+    '\n',
+    'baz, hello\r',
+    '\n world.',
+    '\r\n Node.JS rules!!\r\n\r\n',
+  ];
+  for (const chunk of chunks)
+    ss.push(Buffer.from(chunk));
 
   // output:
   //
@@ -63,16 +64,10 @@ Example
 API
 ===
 
-Events
-------
-
-* **info**(< _boolean_ >isMatch[, < _Buffer_ >chunk, < _integer_ >start, < _integer_ >end]) - A match _may_ or _may not_ have been made. In either case, a preceding `chunk` of data _may_ be available that did not match the needle. Data (if available) is in `chunk` between `start` (inclusive) and `end` (exclusive).
-
-
 Properties
 ----------
 
-* **maxMatches** - < _integer_ > - The maximum number of matches. Defaults to Infinity.
+* **maxMatches** - < _integer_ > - The maximum number of matches. Defaults to `Infinity`.
 
 * **matches** - < _integer_ > - The current match count.
 
@@ -80,8 +75,16 @@ Properties
 Functions
 ---------
 
-* **(constructor)**(< _mixed_ >needle) - Creates and returns a new instance for searching for a _Buffer_ or _string_ `needle`.
+* **(constructor)**(< _mixed_ >needle, < _function_ >callback) - Creates and returns a new instance for searching for a _Buffer_ or _string_ `needle`. `callback` is called any time there is non-matching data and/or there is a needle match. `callback` will be called with the following arguments:
 
-* **push**(< _Buffer_ >chunk) - _integer_ - Processes `chunk`. The return value is the last processed index in `chunk` + 1.
+  1. `isMatch` - _boolean_ - Indicates whether a match has been found
+
+  2. `data` - _mixed_ - If set, this contains data that did not match the needle.
+
+  3. `start` - _integer_ - The index in `data` where the non-matching data begins (inclusive).
+
+  4. `end` - _integer_ - The index in `data` where the non-matching data ends (exclusive).
+
+* **push**(< _Buffer_ >chunk) - _integer_ - Processes `chunk`, searching for a match. The return value is the last processed index in `chunk` + 1.
 
 * **reset**() - _(void)_ - Resets internal state. Useful for when you wish to start searching a new/different stream for example.
