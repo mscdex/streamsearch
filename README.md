@@ -85,6 +85,11 @@ Functions
 
   4. `end` - _integer_ - The index in `data` where the non-matching data ends (exclusive).
 
+  5. `isSafeData` - _boolean_ - Indicates if it is safe to store a reference to `data` (e.g. as-is or via `data.slice()`) or not, as in some cases `data` may point to a Buffer whose contents change over time.
+
+* **destroy**() - _(void)_ - Emits any last remaining unmatched data that may still be buffered and then resets internal state.
+
 * **push**(< _Buffer_ >chunk) - _integer_ - Processes `chunk`, searching for a match. The return value is the last processed index in `chunk` + 1.
 
 * **reset**() - _(void)_ - Resets internal state. Useful for when you wish to start searching a new/different stream for example.
+
