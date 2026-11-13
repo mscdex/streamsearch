@@ -139,3 +139,13 @@ const StreamSearch = require('../lib/sbmh.js');
     [true, null], [true, '!'], [false, '?'],
   ]);
 }
+
+{
+  const ss = new StreamSearch('abc', () => {
+    ss.reset();
+    ss.maxMatches = 0;
+  });
+  ss.push('a');
+  assert.strictEqual(ss.push(Buffer.from('XXbc!'), 2), 4);
+  assert.strictEqual(ss.matches, 0);
+}
