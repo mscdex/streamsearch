@@ -149,3 +149,16 @@ const StreamSearch = require('../lib/sbmh.js');
   assert.strictEqual(ss.push(Buffer.from('XXbc!'), 2), 4);
   assert.strictEqual(ss.matches, 0);
 }
+
+{
+  const results = [];
+  const ss = new StreamSearch('abc', (isMatch, data, start, end) => {
+    results.push([isMatch, data ? data.toString('latin1', start, end) : null]);
+    if (isMatch)
+      ss.reset();
+  });
+  ss.push('a');
+  const chunk = Buffer.from('XXbc!');
+  assert.strictEqual(ss.push(chunk, 2), chunk.length);
+  assert.deepStrictEqual(results, [[true, null], [false, '!']]);
+}
